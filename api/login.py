@@ -8,7 +8,7 @@ from flask import Blueprint, request, jsonify, session
 current_dir = os.path.dirname(__file__)
 
 # Construct the absolute path to the users.json file
-json_file_path = os.path.join(current_dir, 'users.json')
+json_file_path = os.path.join(current_dir, 'data/users.json')
 
 # Create a Blueprint for the login API
 login_bp = Blueprint('login', __name__)

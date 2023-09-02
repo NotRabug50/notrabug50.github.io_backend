@@ -8,7 +8,7 @@ from flask import Blueprint, request, jsonify, session
 current_dir = os.path.dirname(__file__)
 
 # Construct the absolute path to the blog.json file
-json_file_path = os.path.join(current_dir, 'blog.json')
+json_file_path = os.path.join(current_dir, 'data/blog.json')
 
 # Create a Blueprint for the blog API
 blog_bp = Blueprint('blog', __name__)
