@@ -21,4 +21,4 @@ if __name__ == "__main__":
     app.register_blueprint(login.login_bp)
     app.register_blueprint(blog.blog_bp)
     # Start the Flask app
-    app.run(debug=True)
+    app.run(5000)
