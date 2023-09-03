@@ -36,7 +36,6 @@ def login():
 
     users = users_collection.find_one()["users"]
     i = 0
-    print(hash_password("123q66123"))
     for x in users:
         if users[i]["username"] == username and users[i]["password"].lower() == hash_password(password):
             session['user_id'] = users[i]["id"]
