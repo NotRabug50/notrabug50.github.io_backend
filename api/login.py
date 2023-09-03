@@ -1,21 +1,28 @@
-# api/login.py
-
-import os
-import json
 from flask import Blueprint, request, jsonify, session
+from pymongo import MongoClient
+import pymongo
+import hashlib
+import config
 
-# Get the directory of the current script
-current_dir = os.path.dirname(__file__)
-
-# Construct the absolute path to the users.json file
-json_file_path = os.path.join(current_dir, 'data/users.json')
-
-# Create a Blueprint for the login API
 login_bp = Blueprint('login', __name__)
 
-# Load user data from the JSON file
-with open(json_file_path, 'r') as file:
-    users_data = json.load(file)
+dbclient = pymongo.MongoClient(config.MONGODB_SERVER_URL)
+
+db = dbclient["notrabug50-main-db-02e29ccde12"]
+
+users_collection = db["users"]
+
+def hash_password(password):
+    # Create a new SHA-256 hash object
+    sha256 = hashlib.sha256()
+
+    # Update the hash object with the password bytes
+    sha256.update(password.encode('utf-8'))
+
+    # Get the hexadecimal representation of the hashed password
+    hashed_password = sha256.hexdigest()
+
+    return hashed_password
 
 @login_bp.route('/login', methods=['POST'])
 def login():
@@ -23,18 +30,26 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    # Check if the provided username and password match any user in the JSON data
-    for user in users_data['users']:
-        if user['username'] == username and user['password'] == password:
-            # Generate a session token and store user information in the session
-            session['user_id'] = user['id']
-            session['username'] = user['username']
-            return jsonify({'message': 'Login successful', 'user_id': user['id'], 'username': user['username']})
 
-    return jsonify({'message': 'Login failed'})
+    # Check user credentials in MongoDB
+    userh = users_collection.find_one({'username': username, 'password': password})
+
+    query = {"username": username}
+
+    doc = users_collection.find().sort("username")
+
+    users = users_collection.find_one()["users"]
+    i = 0
+    print(hash_password("123q66123"))
+    for x in users:
+        if users[i]["username"] == username and users[i]["password"].lower() == hash_password(password):
+            session['user_id'] = users[i]["id"]
+            return jsonify({'message': 'Login successful'})
+        i += 1
+    return jsonify({'message': 'Invalid credentials'}), 401
 
 @login_bp.route('/logout', methods=['POST'])
 def logout():
-    # Clear the session data to log out the user
-    session.clear()
-    return jsonify({'message': 'Logged out successfully'})
+    # Clear user ID from the session to log out
+    session.pop('user_id', None)
+    return jsonify({'message': 'Logout successful'})
