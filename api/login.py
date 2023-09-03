@@ -13,13 +13,10 @@ db = dbclient["notrabug50-main-db-02e29ccde12"]
 users_collection = db["users"]
 
 def hash_password(password):
-    # Create a new SHA-256 hash object
     sha256 = hashlib.sha256()
 
-    # Update the hash object with the password bytes
     sha256.update(password.encode('utf-8'))
 
-    # Get the hexadecimal representation of the hashed password
     hashed_password = sha256.hexdigest()
 
     return hashed_password
@@ -31,7 +28,6 @@ def login():
     password = data.get('password')
 
 
-    # Check user credentials in MongoDB
     userh = users_collection.find_one({'username': username, 'password': password})
 
     query = {"username": username}
@@ -50,6 +46,5 @@ def login():
 
 @login_bp.route('/logout', methods=['POST'])
 def logout():
-    # Clear user ID from the session to log out
     session.pop('user_id', None)
     return jsonify({'message': 'Logout successful'})
