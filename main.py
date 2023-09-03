@@ -1,31 +1,22 @@
 from flask import Flask
 from flask_session import Session
-import argparse
 import os
-from api import login, blog
+import config
 
 app = Flask(__name__)
 
-# Define command-line arguments
-parser = argparse.ArgumentParser(description='Flask App with Gunicorn')
-parser.add_argument('--mongodb-url', default='default_mongodb_url', help='MongoDB server URL')
-
-# Parse command-line arguments
-args = parser.parse_args()
-
-# Configure Flask session and secret key
 app.config['SESSION_TYPE'] = 'filesystem'
-app.secret_key = app.config["FLASK_SECRET_KEY"]
 Session(app)
 
-# ...
+# Use the environment variable for MongoDB URL
+app.config['MONGODB_SERVER_URL'] = os.getenv("MONGODB_SERVER_URL")
+
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 if __name__ == "__main__":
-    mongodb_url = app.config['MONGODB_SERVER_URL']
+    from api import login, blog
 
     app.register_blueprint(login.login_bp)
     app.register_blueprint(blog.blog_bp)
-
-    # Start the Flask app using Gunicorn
+    # Start the Flask app
     app.run()
-
